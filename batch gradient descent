@@ -1,0 +1,77 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the independent variable
+url_x = "https://drive.google.com/file/d/1cFZHElm5ebn1OolgmrLOxw91T8am3S5C/view?usp=sharing"
+file_id_x = url_x.split("/")[-2]
+download_link_x = f"https://drive.google.com/uc?id={file_id_x}"
+x_data = pd.read_csv(download_link_x)
+
+# Load the dependent variable
+url_y = "https://drive.google.com/file/d/1rY3oTHxa1FT3fdcjWuKKQ4DOXnU8AeQM/view?usp=sharing"
+file_id_y = url_y.split("/")[-2]
+download_link_y = f"https://drive.google.com/uc?id={file_id_y}"
+y_data = pd.read_csv(download_link_y)
+print(y_data)
+print(x_data)
+# Initialize parameters
+theta_0 = 0
+theta_1 = 0
+
+# Initialize lists to store iteration and cost values
+iteration_list = []
+cost_history = []
+
+# Set learning rate and convergence criterion
+learning_rate = 0.5
+convergence_criterion = 0.0001
+max_iterations = 1000
+
+# Number of training examples
+m = len(x_data)
+
+prev_cost = float('inf')  # Set to positive infinity initially
+
+for iteration in range(max_iterations):
+    predictions = hypothesis(theta_0, theta_1, x_data)
+    errors = predictions - y_data
+
+    gradient_theta_0 = (1 / m) * np.sum(errors)
+    gradient_theta_1 = (1 / m) * np.sum(errors * x_data)
+
+    theta_0 = theta_0 - learning_rate * gradient_theta_0
+    theta_1 = theta_1 - learning_rate * gradient_theta_1
+
+    current_cost = cost_function(theta_0, theta_1, x_data, y_data)
+
+    # Store iteration and cost for plotting
+    iteration_list.append(iteration)
+    cost_history.append(current_cost)
+
+    if np.abs(prev_cost - current_cost).any() < convergence_criterion:
+        print(f"Converged after {iteration + 1} iterations.")
+        break
+
+    prev_cost = current_cost
+
+# Check final cost and optimal parameters
+final_cost = cost_function(theta_0, theta_1, x_data, y_data)
+print("Final Cost:", final_cost)
+print("Optimal Parameters:", theta_0, theta_1)
+
+# Plot cost function versus iteration
+plt.plot(iteration_list, cost_history, label='Cost Function')
+plt.title('Cost Function vs. Iteration')
+plt.xlabel('Iteration')
+plt.ylabel('Cost Function')
+plt.legend()
+plt.show()
+
+plt.scatter(x_data, y_data, label='Dataset')
+plt.plot(x_data, hypothesis(theta_0, theta_1, x_data), color='red', label='Fitted Line')
+plt.title('Linear Regression Fit')
+plt.xlabel('Independent Variable')
+plt.ylabel('Dependent Variable')
+plt.legend()
+plt.show()
